@@ -1,138 +1,83 @@
-# 安装与第一次派工
+# 默认安装：DSH 记忆与人设
 
-返回 [README](../README.md)。下面以 Windows PowerShell 为首版路线；其他系统尚未验证。
+返回 [README](../README.md)。本页面向Windows PowerShell，无需Codex、OpenAI账户、会话控制插件或工程派工技能。使用你能正常使用的DSH模型服务即可。
 
-## 1. 准备工具和本仓库
+## 1. 准备工具和主仓库
 
-需要 Git、Node.js 22.19+ 或24+、npm，以及已经安装并可用的 Codex。若尚未安装 Harness/pnpm，按[官方仓库](https://github.com/deepseek-ai/deepseek-harness)准备本版基线：
+需要Git、Node.js 22.19+或24+、npm，以及DSH。若尚未安装DSH，按[官方项目](https://github.com/deepseek-ai/deepseek-harness)准备本版基线：
 
 ```powershell
-npm install --global @deepseek-ai/dsh@0.2.1-rc.2 pnpm@11.7.0
+npm install --global @deepseek-ai/dsh@0.2.1-rc.2
 node --version
 dsh --version
 ```
 
-已有其他版本时先检查兼容性，不必替换现用安装；可以在独立环境安装对应版本。此文档的命令由读者显式执行，仓库检查脚本不会安装全局工具。
-
-克隆主方案（两个自研插件会在记忆步骤从各自公开仓库安装）：
+已有其他版本时先检查兼容性，不强制替换现用安装。下面的profile和数据目录单独创建，不复制原有登录凭据。
 
 ```powershell
 git clone https://github.com/XRH66/codex-deepseek-starter.git
 Set-Location codex-deepseek-starter
-```
-
-在本仓库根目录运行，并保留 `$starter`：
-
-```powershell
 $starter = (Get-Location).Path
 npm ci
 npm run check
 ```
 
-## 2. 安装第三方控制插件源码
+已克隆时直接进入仓库，保留 `$starter` 即可。
 
-该插件由 [mochgolf/dsh-mcp-control](https://github.com/mochgolf/dsh-mcp-control) 提供，MIT。本版核对时 npm registry 尚无同名包，因此从公开源码构建，不使用假设存在的 npm 安装命令。
+## 2. 生成默认记忆配置
 
-```powershell
-$tools = Join-Path $env:USERPROFILE 'Tools'
-New-Item -ItemType Directory -Force $tools | Out-Null
-$control = Join-Path $tools 'dsh-mcp-control'
-git clone https://github.com/mochgolf/dsh-mcp-control.git $control
-if ($LASTEXITCODE -ne 0) { throw 'Clone failed; inspect an existing directory before continuing.' }
-git -C $control checkout fdb74ddd872bc005581c035c2e4d6422618a330e
-Push-Location $control
-pnpm install --frozen-lockfile
-if ($LASTEXITCODE -ne 0) { throw 'Control plugin dependency install failed.' }
-pnpm run build
-if ($LASTEXITCODE -ne 0) { throw 'Control plugin build failed.' }
-Pop-Location
-```
-
-已有 checkout 时确认来源、版本和未提交修改再使用，不执行覆盖式更新。本版不混装另一条 `Codex-DSH-Orchestrator` bridge 路线。
-
-## 3. 生成独立部署配置
-
-`$deploy` 必须是仓库外尚不存在的新目录；下面仅生成配置，不启动服务，不修改已有 Harness/Codex 设置。预先加入 `--with-memory` 会同时生成记忆配置，记忆插件启用步骤仍需按[记忆文档](memory.md)完成。
+`$deploy` 必须是仓库外尚不存在的新目录。生成器拒绝覆盖已有部署：
 
 ```powershell
-Set-Location $starter
-$deploy = Join-Path $env:LOCALAPPDATA 'codex-deepseek-deployment'
-node scripts/configure.mjs --out $deploy --control-root $control --with-memory
+$deploy = Join-Path $env:LOCALAPPDATA 'dsh-memory-deployment'
+node scripts/configure.mjs --out $deploy
+if ($LASTEXITCODE -ne 0) { throw 'Configuration generation failed.' }
 $paths = Get-Content (Join-Path $deploy 'paths.json') -Raw | ConvertFrom-Json
-$env:DSH_HOME = $paths.harnessHome
-$env:DSH_AGENTS_HOME = $paths.harnessHome
-$env:DSH_MCP_URL = 'http://127.0.0.1:8931/mcp'
 ```
 
-上面的默认路线包含记忆和人设。生成后先完成[记忆文档第1–3步](memory.md)，再回来启动；只要工程协作时，在第一次生成命令中省略 `--with-memory` 即可。不能在同一输出目录再次生成。审查 `dsh.patch.yml`；其中路径是实际字面值，不依赖 YAML 自动展开变量。`DSH_HOME` 和 `DSH_AGENTS_HOME` 均指向独立目录，避免接触已有用户主目录部署。
+默认模式为 `memory`，生成三个文件：
 
-## 4. 凭据、模型与启动
+- `dsh.patch.yml`：记忆桥、人设和状态目录配置。
+- `basic-memory.mcp.json`：指向独立Basic Memory配置目录的stdio MCP连接。
+- `paths.json`：DSH home、Vault、人设、自我档案及管理目录的位置。
 
-启动前确认端口8931未被其他服务占用。在用于启动的 PowerShell 中执行：
+本路线不生成 `codex.mcp.toml`，不插入 `dsh-mcp-control`，不需要 `DSH_MCP_CONTROL_TOKEN`。不固定模型供应商。
+
+## 3. 安装记忆组件并启用
+
+继续[记忆接入说明](memory.md)，按顺序完成：
+
+1. 安装官方Basic Memory、Obsidian，以及会话设置、记忆桥、人设三个插件。
+2. 登记同一个 `personal` 项目和Vault。
+3. 复制虚构起始人设、自我档案示例，或编写自己的内容。
+4. 启动独立DSH，配置自己可用的模型，在需要记忆的会话启用Basic Memory MCP并验证。
+
+步骤使用本页的 `$starter`、`$deploy`、`$paths`，无需再生成配置。
+
+## 日常启动与新终端
+
+完成上述组件安装后：
 
 ```powershell
 & (Join-Path $starter 'scripts/use-deployment.ps1') -Deployment $deploy -Start
 ```
 
-该脚本只启动你选定的独立部署：设置对应的DSH目录、数据路径和端口；首次生成随机控制token并保存在部署目录的 `mcp-token.private`，以后复用。它不打印token，也不改现有Codex配置。部署目录包含凭据和运行数据，应放在自己的受保护目录，不上传或共享。
+使用独立回环端口8931，打开启动日志给出的登录入口。若端口已被占用，先确认是否是自己的旧实例，不停止未知程序。
 
-在第二个 PowerShell 终端中重新定位主方案与部署目录，**点调用**相同脚本，将同一个token和路径载入当前终端：
+在新PowerShell终端需要重新加载该部署路径时：
 
 ```powershell
-$starter = (Resolve-Path '<主方案目录>').Path
-$deploy = Join-Path $env:LOCALAPPDATA 'codex-deepseek-deployment'
+$starter = (Resolve-Path '<主仓库目录>').Path
+$deploy = Join-Path $env:LOCALAPPDATA 'dsh-memory-deployment'
 . (Join-Path $starter 'scripts/use-deployment.ps1') -Deployment $deploy
 ```
 
-尖括号内容替换为实际目录。后续CLI、记忆命令和Codex CLI可从这个终端运行。不要把token本身写进命令参数或文章。
+替换尖括号内容。点调用只加载当前终端环境，不启动服务。默认memory模式不会创建控制token，并清除当前终端遗留的工程控制连接变量；已有其他终端和运行实例不受影响。
 
-打开**这个实例**启动日志中的登录入口，按官方流程配置模型并确认供应商、模型和费用。默认委派技能期望 `opencode-go / deepseek-v4.1-flash / high`；若你选择其他模型，应同步自己的技能约定。供应商认证是用户自己的账户，仓库不提供、不复制账户，也不会自动切换或购买套餐。
+## 后续选择
 
-MCP控制token和Web登录凭据是两套凭据。端口冲突时先停止自己的旧测试实例或修改配置与启动脚本使端口一致，不接管未知进程。
+- 让其他Agent读取和整理同一套记忆：[第三方Agent协作维护](agents.md)。使用现有记忆配置，不需要创建工程控制部署。
+- 确实需要从Codex或其他MCP客户端给DSH派发代码任务：[可选工程控制附录](control.md)。该模式另用 `--mode control` 和控制插件，与共享记忆不是同一个功能。
+- 升级前确认版本、插件固定提交与数据路径，在会话和补写空闲时重载。`configure` 不用于覆盖升级现有部署；保留原有Vault、管理状态和配置，按实际变更更新。
 
-## 5. Codex 配置与技能
-
-配置生成器输出 `codex.mcp.toml`，按 [OpenAI 官方 MCP 文档](https://learn.chatgpt.com/docs/extend/mcp)将该段合并到自己选择的 Codex 配置。已有 `dsh_harness` 时先检查冲突，不能重复添加或覆盖现用服务。
-
-```toml
-[mcp_servers.dsh_harness]
-url = "http://127.0.0.1:8931/mcp"
-bearer_token_env_var = "DSH_MCP_CONTROL_TOKEN"
-```
-
-Codex进程也需继承相同token环境变量。可以从已设置环境变量的终端启动Codex CLI；桌面程序若没有继承该环境变量，需要用其支持的本地环境配置方式设置，不能假设修改终端变量会改变已运行程序。
-
-本仓库CLI本身可以直接用 `DSH_MCP_URL` 和 `DSH_MCP_CONTROL_TOKEN`，无需修改Codex配置；也支持 `DSH_CODEX_CONFIG` 指向配置文件，否则从 `CODEX_HOME/config.toml` 或用户主目录 `.codex/config.toml` 读取。优先环境token，其次配置引用的token环境变量，再其次兼容原有内联Authorization。不要在公共文件写真实凭据。
-
-技能按[官方技能说明](https://learn.chatgpt.com/docs/build-skills)复制到实际工程的 `.agents/skills/` 下。在仓库根目录、使用一个新的演示工程：
-
-```powershell
-$work = Join-Path $deploy 'demo-project'
-New-Item -ItemType Directory -Force (Join-Path $work '.agents/skills') | Out-Null
-Copy-Item -Recurse (Join-Path $starter 'skills/delegate-to-deepseek-harness') (Join-Path $work '.agents/skills/')
-$env:DSH_STARTER_ROOT = $starter
-```
-
-保留 `DSH_STARTER_ROOT`，使技能能定位CLI。工程已有规则时局部合并，避免用本仓库AGENTS覆盖用户项目规则。
-
-## 6. 实际派工、续接与验收
-
-先确认工程工作区没有启用个人 `basic_memory` MCP；开启它会让轮后整理保存工程简报。若此前全局启用了记忆，在工程工作区显式关闭后再派工。在继承了同一token的调用终端执行：
-
-```powershell
-$receipt = node (Join-Path $starter 'scripts/dsh-cli.mjs') start --cwd $work --task-file (Join-Path $starter 'examples/task.md') --permission danger-full-access | ConvertFrom-Json
-node (Join-Path $starter 'scripts/dsh-cli.mjs') result --session $receipt.session_id --request $receipt.request_id --wait-ms 20000
-```
-
-返回 `running` 时用同样的 `result` 再等；`ended` 后检查 `reason.kind`，并由Codex读取实际 `greeting.txt`，确认内容准确。回执只表示接收，不能代替实际文件验收。审批请求在Harness界面由用户处理，CLI不代批。
-
-续接使用 `send --session <session_id> --task-file <new-task>`；`status --session <session_id>`用于接管或诊断。将session/request身份保存在工程自己的私有任务记录中，不上传聊天日志。
-
-## 升级与排查
-
-- 连接失败：检查两个进程的token、`DSH_MCP_URL`、端口及独立实例是否运行；不要把完整配置或日志发到公开issue。
-- 升级自研插件：先读取变更与固定版本，在会话及补写队列空闲时更新同一个独立profile，再重载该实例。仅修改仓库文件不会让已运行进程自动加载新代码。
-- 升级控制插件：审查新提交，重新构建，并同步生成配置中的源码位置；本版未实现自动升级或自动重启。
-- 停止或移除测试部署前确认对应进程和数据位置；本仓库不提供批量清理命令。
-
-当前验证范围见[验证记录](validation.md)。
+当前证据与限制见[验证记录](validation.md)。

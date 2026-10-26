@@ -1,68 +1,68 @@
-# Codex × DeepSeek Harness：协作与可选长期记忆
+# DSH 长期记忆与人设 · 第三方 Agent 协作维护
 
-让 Codex 负责需求、方案、代码审查与独立验收，让 DeepSeek Harness 执行具体任务。可按需接入 Basic Memory 与 Obsidian，保存事实、经历和助手自己的记录。
+给日常使用的 DeepSeek Harness 接入长期记忆、人设与可修订自我档案。记忆保存在本地，通过 Obsidian 查看和编辑；也可以让支持 MCP 的第三方 Agent 软件接入同一套记忆，帮助检索、补充和整理。
 
-这是面向 Windows PowerShell 的 **0.1.0 完整集成入口**。主仓库提供配置生成、独立部署启动、CLI、委派技能和从零接入文档；两个自研插件由公开仓库按固定提交安装。需要自己的模型账户，首次仍需完成供应商配置和MCP启用。
-
-## 组成与来源
-
-| 组件 | 职责 | 来源 |
-| --- | --- | --- |
-| 本仓库 | Codex × Harness 协作、CLI、技能、配置与启动 | 本方案集成代码 |
-| [记忆桥](https://github.com/XRH66/dsh-basic-memory-bridge) | 召回、整理、纠正、索引、遗忘与强化 | 自研插件 |
-| [全局设置](https://github.com/XRH66/dsh-global-settings) | 人设、自我档案、记忆状态面板 | 自研插件 |
-| [dsh-mcp-control](https://github.com/mochgolf/dsh-mcp-control) | Harness 会话控制接口 | 第三方插件 |
-| [dsh-session-settings](https://github.com/u9521/dsh-session-settings) | MCP接入与会话开关 | 第三方插件 |
-| [Basic Memory](https://github.com/basicmachines-co/basic-memory) | 本地Markdown存储、检索与MCP | 上游开源项目 |
-| [Obsidian](https://github.com/obsidianmd/obsidian-releases) | 查看和编辑同一记忆Vault | 官方客户端，单独安装 |
-
-从[完整安装步骤](docs/setup.md)开始；默认生成记忆和人设配置，工程协作也可单独使用。完整方案由上述组件组成，不把第三方软件、账户或个人记忆打包进仓库。
+**默认路线不需要 Codex、OpenAI 账户或任何第三方 Agent 软件。** 使用者只需准备 DSH、自己可用的模型服务，以及下文的记忆组件。本项目不会选择、购买或自动切换模型服务。
 
 ## 两条使用路线
 
-| 路线 | 包含内容 | 从哪里开始 |
+| 路线 | 适合谁 | 入口 |
 | --- | --- | --- |
-| 工程协作 | UTF-8 任务文件、派工、续接会话、精简结果、Codex 独立验收 | [安装与第一次派工](docs/setup.md) |
-| 可选长期记忆 | 回答前召回、轮后整理、纠正与补写、主题索引、自然遗忘与强化、个人记录和自我档案 | 先完成工程协作，再读[记忆接入](docs/memory.md) |
+| **默认：DSH 记忆与人设** | 在DSH里聊天，希望助手记住事实、经历、偏好并保留自己的记录 | [从安装到启用](docs/setup.md) |
+| **可选：第三方 Agent 协作维护记忆** | 希望其他支持MCP的Agent也能读取、补充和整理同一套记忆 | [共享记忆接入](docs/agents.md) |
 
-记忆不是工程协作的前置条件。所有启用记忆的会话共享一个 `personal` 库；当前面向个人使用，不提供多人隐私隔离。
+第二条是在第一条的记忆库上增加客户端，不需要更换模型、不需要复制数据库，也不要求用Codex。Codex只是可接入客户端的一个例子。
 
-## 首次检查
+旧版的“Codex规划、DSH执行代码任务”另保留为[可选工程控制附录](docs/control.md)，两条记忆路线均不依赖它。仓库URL沿用历史名称 `codex-deepseek-starter`，以保留已有链接；名称不表示需要安装Codex。
 
-前置：Node.js 22.19+（或24+）、npm，以及下文安装的官方 Harness。下载本仓库后，在仓库根目录运行：
+## 组成与职责
+
+| 组件 | 职责 | 哪条路线需要 |
+| --- | --- | --- |
+| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | 日常聊天与模型工具运行环境 | 默认路线 |
+| [Basic Memory](https://github.com/basicmachines-co/basic-memory) | 本地Markdown存储、检索、索引与MCP接口 | 两条路线共用 |
+| [记忆桥](https://github.com/XRH66/dsh-basic-memory-bridge) | DSH回答前召回、轮后整理、纠正、补写、索引、遗忘与强化 | DSH自动流程 |
+| [全局设置](https://github.com/XRH66/dsh-global-settings) | 人设、自我档案、记忆状态面板 | DSH人设与状态 |
+| [dsh-session-settings](https://github.com/u9521/dsh-session-settings) | MCP接入与DSH会话开关 | 默认路线 |
+| [Obsidian](https://github.com/obsidianmd/obsidian-releases) | 直接查看和编辑同一个记忆Vault | 记忆管理入口 |
+| 使用者选择的第三方Agent | 经MCP检索、补充与整理共享记忆 | 可选协作路线 |
+
+记忆桥和全局设置是本项目自研插件；Basic Memory、DSH和会话设置来自各自上游。Obsidian官方客户端单独安装，不属于本仓库MIT许可覆盖的代码。[来源与许可](NOTICE.md)。
+
+## 从这里开始
+
+首版支持Windows PowerShell。准备Git、Node.js 22.19+或24+及npm，然后：
 
 ```powershell
+git clone https://github.com/XRH66/codex-deepseek-starter.git
+Set-Location codex-deepseek-starter
 npm ci
 npm run check
-node scripts/dsh-cli.mjs --help
-node scripts/configure.mjs --help
 ```
 
-这些命令检查本地代码，不会启动 Harness、修改 Codex 设置或读写你的记忆库。`configure` 必须指定仓库外的新目录，只生成待审核配置。
+按[默认安装](docs/setup.md)准备DSH并生成配置：
 
-## 仓库内容
+```powershell
+$deploy = Join-Path $env:LOCALAPPDATA 'dsh-memory-deployment'
+node scripts/configure.mjs --out $deploy
+```
 
-- `scripts/`：便携 CLI、配置生成器、发布文件与链接检查。
-- [dsh-basic-memory-bridge](https://github.com/XRH66/dsh-basic-memory-bridge)：独立自研插件，自动召回、整理与记忆维护。
-- [dsh-global-settings](https://github.com/XRH66/dsh-global-settings)：独立自研插件，全局人设、自我档案及记忆状态面板。
-- `skills/`：可复制安装的委派技能；[工程规则](AGENTS.md)适用于本仓库维护。
-- `examples/`：虚构任务、人设与自我档案；不是实际使用者的内容。
-- [来源与许可](NOTICE.md)、[隐私与公开边界](docs/privacy.md)、[验证与限制](docs/validation.md)。
+默认生成记忆与人设配置，**不需要控制插件路径，不生成Codex配置或会话控制凭据**。随后按文档安装三个配套插件、登记Vault、启用MCP和启动DSH。配置生成不等于已经部署；不会修改现用实例。
 
-## 软件来源
+已有DSH用户可在独立目录验证后按插件说明接入现用实例，先核对版本与数据路径，不把新配置覆盖到现有库。模型账户和首次MCP启用仍需由使用者完成。
 
-[Obsidian 官方发布仓库](https://github.com/obsidianmd/obsidian-releases)与[Basic Memory 官方仓库](https://github.com/basicmachines-co/basic-memory)只保留链接、安装命令和必要接入步骤，不随仓库打包。具体命令见[记忆接入](docs/memory.md)。
+## 协作维护的边界
 
-本版以 Harness 0.2.1-rc.2、Basic Memory 0.24.1 的接口为适配基线。CLI不会替用户选择模型、购买套餐或自动切换供应商。先确认实际模型与费用，再派工。
+DSH和第三方Agent通过同一个Basic Memory项目访问同一份笔记。DSH桥负责它所在会话中的自动召回、整理和记忆策略；其他Agent的普通对话不会因此自动进入这套生命周期，需要按任务显式调用记忆工具。
 
-## 验证范围
+一个人的多个客户端可以共用个人库；本项目不提供多人隐私隔离或跨机器同步。共同维护时先读后改、保留事实来源与元数据，同一笔记避免并发修改。具体操作约定见[协作说明](docs/agents.md)。
 
-已验证Windows独立profile安装和启动、控制接口发现、27项记忆工具探测，以及真实记忆写入后跨进程读取和检索。自动化配置、CLI模拟传输、隐私白名单及链接检查通过。
+## 验证与维护
 
-本发布包的真实模型派工与跨聊天自动记忆闭环尚未验证，也未在另一台全新电脑完成安装验收；不要把上述检查当作这些验收。详细证据口径见[验证与限制](docs/validation.md)。
+此前已验证独立DSH部署、27项记忆工具探测、真实记忆写入后跨进程读取和检索，以及可选工程控制接口发现。两条配置路线及启动行为有针对性检查；实际范围见[验证记录](docs/validation.md)。
 
-## 后续维护
+本发布包的真实模型派工与跨聊天自动记忆闭环尚未验证，也未在另一台全新电脑完成安装验收。第三方Agent调用自己的模型时仍受该软件与供应商的配置影响。
 
-主方案的CLI、技能和说明在本仓库维护；两个自研插件在各自独立仓库维护，主方案引用审查过的固定提交。通过相关测试后再更新自己选择的独立部署。运行配置、凭据与记忆数据始终在仓库外。升级不会自动重启正在运行的服务；安装路径和升级步骤见[安装说明](docs/setup.md)。
+运行配置、凭据、聊天及记忆保存在仓库外。记忆本地存储不代表模型推理离线，相关内容会发送给所选模型服务。[隐私说明](docs/privacy.md)。两个自研插件按固定提交引用，各自独立维护；更新代码后需要在空闲时重载对应DSH实例。
 
-MIT，第三方软件与引用分别适用其原许可，见[来源与许可](NOTICE.md)。
+MIT。当前集成版0.2.0；适配基线为DSH 0.2.1-rc.2、Basic Memory 0.24.1。

@@ -15,6 +15,56 @@ import { connectionConfig, readWaitMs } from '../scripts/dsh-cli.mjs';
 const exec = promisify(execFile);
 const cli = path.join(repoRoot, 'scripts', 'dsh-cli.mjs');
 
+test('default CLI generates memory/persona without a control checkout or Codex configuration', async () => {
+  const base=await fs.mkdtemp(path.join(os.tmpdir(),'starter-memory-'));
+  try {
+    const out=path.join(base,'memory deployment');
+    const run=await exec(process.execPath,[path.join(repoRoot,'scripts','configure.mjs'),'--out',out]);
+    assert.equal(JSON.parse(run.stdout).mode,'memory');
+    assert.deepEqual((await fs.readdir(out)).sort(),['basic-memory.mcp.json','dsh.patch.yml','paths.json']);
+    const overlay=parseYaml(await fs.readFile(path.join(out,'dsh.patch.yml'),'utf8'));
+    assert.deepEqual(overlay.map(e=>e.id),['basic-memory-bridge','dsh-global-settings']);
+    const paths=JSON.parse(await fs.readFile(path.join(out,'paths.json'),'utf8'));
+    assert.equal(overlay[0].config.vaultPath,paths.vault);
+    assert.equal(overlay[1].config.selfProfilePath,paths.selfProfile);
+    assert.equal(JSON.parse(await fs.readFile(path.join(out,'basic-memory.mcp.json'),'utf8')).mcpServers.basic_memory.transport,'stdio');
+    assert.throws(()=>configure({out:path.join(base,'invalid'),mode:'other'}),/mode/);
+    assert.throws(()=>configure({out:path.join(base,'unexpected'),controlRoot:base}),/only used/);
+    assert.throws(()=>configure({out:path.join(base,'missing-control'),mode:'control'}),/control-root/);
+  } finally { await fs.rm(base,{recursive:true,force:true}); }
+});
+
+test('Windows launcher keeps memory mode credential-free and reuses control credentials', {skip:process.platform!=='win32'}, async () => {
+  const base=await fs.mkdtemp(path.join(os.tmpdir(),'starter-launch-'));
+  try {
+    const controlRoot=path.join(base,'built-control');
+    await fs.mkdir(path.join(controlRoot,'lib'),{recursive:true});
+    await fs.writeFile(path.join(controlRoot,'lib','index.js'),'// fixture');
+    const quote=s=>"'"+s.replaceAll("'","''")+"'";
+    for(const mode of ['memory','control']) {
+      const out=path.join(base,mode);
+      configure({out,mode,...(mode==='control'?{controlRoot}:{})});
+      if(mode==='control') assert.equal(await fs.stat(path.join(out,'basic-memory.mcp.json')).then(()=>true,()=>false),false);
+      const script=path.join(base,mode+'.ps1');
+      await fs.writeFile(script,`
+function dsh { $global:starterObservedArgs = @($args | ForEach-Object { [string]$_ }); $global:LASTEXITCODE = 0 }
+. ${quote(path.join(repoRoot,'scripts','use-deployment.ps1'))} -Deployment ${quote(out)} -Start
+$firstToken = $env:DSH_MCP_CONTROL_TOKEN
+. ${quote(path.join(repoRoot,'scripts','use-deployment.ps1'))} -Deployment ${quote(out)}
+@{ home=$env:DSH_HOME; tokenLength=([string]$env:DSH_MCP_CONTROL_TOKEN).Length; sameToken=($firstToken -eq $env:DSH_MCP_CONTROL_TOKEN); url=$env:DSH_MCP_URL; args=$global:starterObservedArgs } | ConvertTo-Json -Compress
+`);
+      const result=await exec('powershell.exe',['-NoProfile','-File',script],{env:{...process.env,DSH_MCP_CONTROL_TOKEN:'stale',DSH_MCP_URL:'http://127.0.0.1:3080/mcp',DSH_CODEX_CONFIG:'stale'}});
+      const state=JSON.parse(result.stdout.trim().split(/\r?\n/).at(-1));
+      assert.equal(state.home,path.join(out,'harness-home'));
+      assert.deepEqual(state.args,['--profile','web','--patch',path.join(out,'dsh.patch.yml'),'--host','127.0.0.1','--port','8931','--no-open']);
+      assert.equal(state.tokenLength,mode==='memory'?0:64);
+      assert.equal(state.sameToken,true);
+      assert.equal(state.url,mode==='memory'?null:'http://127.0.0.1:8931/mcp');
+      assert.equal(await fs.stat(path.join(out,'mcp-token.private')).then(()=>true,()=>false),mode==='control');
+    }
+  } finally { await fs.rm(base,{recursive:true,force:true}); }
+});
+
 test('configuration generation is outside the repo, coherent, secret-free and refuses existing output', async () => {
   const base = await fs.mkdtemp(path.join(os.tmpdir(), 'starter-config-'));
   try {
@@ -22,7 +72,7 @@ test('configuration generation is outside the repo, coherent, secret-free and re
     await fs.mkdir(path.join(controlRoot,'lib'),{recursive:true});
     await fs.writeFile(path.join(controlRoot,'lib','index.js'),'// mock external checkout');
     const out=path.join(base,'deployment with spaces');
-    const result=configure({out,controlRoot,withMemory:true});
+    const result=configure({out,mode:'control',controlRoot,withMemory:true});
     assert.equal(result.deployed,false);
     const overlay=parseYaml(await fs.readFile(path.join(out,'dsh.patch.yml'),'utf8'));
     const paths=JSON.parse(await fs.readFile(path.join(out,'paths.json'),'utf8'));

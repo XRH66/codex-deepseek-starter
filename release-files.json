@@ -5,6 +5,8 @@
   "LICENSE",
   "NOTICE.md",
   "README.md",
+  "docs/agents.md",
+  "docs/control.md",
   "docs/memory.md",
   "docs/privacy.md",
   "docs/setup.md",

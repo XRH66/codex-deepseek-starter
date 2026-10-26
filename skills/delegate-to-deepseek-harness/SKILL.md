@@ -1,12 +1,12 @@
 ---
 name: delegate-to-deepseek-harness
-description: 当用户要求实际修改代码、脚本或配置时，让 DeepSeek Harness 执行边界明确的任务，由 Codex 规划、审查和独立验收。普通问答、方案讨论及用户指定由 Codex 实施的任务直接处理。
+description: 在已选择工程派工路线的项目中，让 DeepSeek Harness 执行代码、脚本或配置任务，由 Codex 规划、审查和独立验收。共享记忆维护使用 Basic Memory MCP；普通问答及用户指定由 Codex 实施的任务直接处理。
 ---
 
 # Codex 与 DeepSeek Harness 协作
 
 Codex 负责理解需求、划定范围、方案与验收；Harness 负责具体实现及自检。
-先用环境变量 DSH_STARTER_ROOT 定位方案安装目录，按该目录 docs/setup.md 确认安装，CLI位于 scripts/dsh-cli.mjs。变量缺失时从已有项目配置或用户提供的安装位置定位，不假设本技能目录就是方案目录。
+先用环境变量 DSH_STARTER_ROOT 定位方案安装目录，按该目录 docs/control.md 确认工程控制安装，CLI位于 scripts/dsh-cli.mjs。变量缺失时从已有项目配置或用户提供的安装位置定位，不假设本技能目录就是方案目录。仅需协作维护记忆时使用 docs/agents.md 的共享MCP连接，无需安装本技能。
 
 1. 读项目规则、相关代码及未提交差异。写一个 UTF-8 任务文件，包含目标、允许修改路径、约束、可观察验收条件；要求执行者精简报告交付路径、检查与阻塞。
 2. 先确认专用工程工作区未启用个人 basic_memory MCP，防止调度简报自动进入个人库；已有全局继承时先在该工作区覆盖关闭。有准确且空闲的 Harness 会话时续接；首次接管先核对身份、cwd 和当前模型。否则在实际项目目录开始任务：

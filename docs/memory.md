@@ -1,6 +1,6 @@
-# 可选长期记忆与人设
+# DSH 长期记忆与人设接入
 
-返回 [README](../README.md)。先完成[基础准备与控制插件构建](setup.md)，第一次生成配置时选择 `--with-memory`。以下仍使用同一 `$starter`、`$deploy` 和 `$paths`，不接触现用部署。
+返回 [README](../README.md)。先完成[默认安装第1–2步](setup.md)，生成默认memory配置。以下沿用 `$starter`、`$deploy` 和 `$paths`；无需Codex、控制插件或工程派工技能。
 
 ## 官方软件
 
@@ -28,8 +28,8 @@ $env:DSH_HOME = $paths.harnessHome
 $env:DSH_AGENTS_HOME = $paths.harnessHome
 $env:DSH_MEMORY_VAULT = $paths.vault
 dsh plugin --profile web add github:u9521/dsh-session-settings#237537bb11663fd02bb14e5b415c92ff1a4320cd
-dsh plugin --profile web add github:XRH66/dsh-basic-memory-bridge#ea2ce0b6c6b4912aeaecf5a69ff0078a72727765
-dsh plugin --profile web add github:XRH66/dsh-global-settings#bfe097492be269019f29c43a0b67fe3c67b01ed1
+dsh plugin --profile web add github:XRH66/dsh-basic-memory-bridge#8a8f832a1038cbb4595331aaf08ecb8d4c2a4842
+dsh plugin --profile web add github:XRH66/dsh-global-settings#1fb0fcb5994b4dfb6937ea9a09ab226012bcae1b
 ```
 
 | 插件 | 归属 | 用途 |
@@ -68,13 +68,23 @@ Copy-Item (Join-Path $starter 'examples/self-profile.md') $paths.selfProfile
 
 ## 4. 启用并验证
 
-按[启动步骤](setup.md)启动这个独立Harness实例，并用其自己的Web登录入口进入。
+完成上述第1–3步后，在同一PowerShell中启动独立Harness，并用其启动日志中的Web登录入口进入：
+
+```powershell
+& (Join-Path $starter 'scripts/use-deployment.ps1') -Deployment $deploy -Start
+```
+
+默认memory模式只启动DSH记忆与人设，不生成Codex配置或会话控制token。按DSH正常流程选择自己能够使用的模型及供应商，不要求OpenAI账户或特定供应商。已有登录信息不会自动从其他DSH实例复制。
 
 在dsh-session-settings的MCP管理中导入生成的 `basic-memory.mcp.json`，探测工具；server键保留 **basic_memory**。只在需要个人记忆的聊天会话勾选它，确认工具名出现 `mcp__basic_memory__search_notes`、`read_note`、`write_note` 等。工程派工工作区保持关闭，避免把调度简报自动存入个人库；已有全局启用时，先在工程工作区显式覆盖关闭，再创建worker会话。这是第三方插件当前提供的设置入口；本版配置生成器不自动写入其存储或设置开关。
 
 在一个测试会话说一条明确的虚构偏好，例如“部署测试：示例人物喜欢紫色纸飞机，请记住”。成功回答后，在“DSH 全局设置 → 当前对话 · 记忆”检查是否完成整理，并在Obsidian核对真实笔记。再开一个同样启用Basic Memory的会话提问，核对是否能召回；最后将测试内容送人工审阅。只在独立库做这些测试。
 
 没有保存也可能是模型判定无须保存；查状态与真实文件，不把自然语言回复当作写入成功。人设编辑后通过下一次请求确认读取新内容；文件保存不等于某次回答已使用。
+
+## 第三方 Agent 协作维护
+
+需要让其他Agent读取、补充或整理同一套记忆时，按[共享记忆接入说明](agents.md)连接同一个Basic Memory项目。无需先启用工程派工，也无需复制Vault。
 
 ## 行为与限制
 

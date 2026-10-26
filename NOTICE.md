@@ -11,9 +11,9 @@
 
 上游来源：
 
-- [dsh-mcp-control](https://github.com/mochgolf/dsh-mcp-control)，参考提交 `fdb74ddd872bc005581c035c2e4d6422618a330e`，包版本 0.2.1。[原许可](third-party/dsh-mcp-control.LICENSE)。上游控制插件由使用者独立安装，不随本仓库分发。
+- [dsh-mcp-control](https://github.com/mochgolf/dsh-mcp-control)，参考提交 `fdb74ddd872bc005581c035c2e4d6422618a330e`，包版本 0.2.1。[原许可](third-party/dsh-mcp-control.LICENSE)。上游控制插件仅用于可选工程控制附录，由使用者独立安装；两条记忆路线均不需要它，不随本仓库分发。
 - [delegate-to-deepseek-harness](https://github.com/LomoMao/delegate-to-deepseek-harness)。[原许可](third-party/delegate-to-deepseek-harness.LICENSE)。
-- [dsh-session-settings](https://github.com/u9521/dsh-session-settings)，可选记忆链路的外部依赖，MIT；由使用者按其官方说明安装，本仓库不分发其源码。
+- [dsh-session-settings](https://github.com/u9521/dsh-session-settings)，默认记忆路线的外部依赖，MIT；由使用者按其官方说明安装，本仓库不分发其源码。
 - [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)、[Basic Memory](https://github.com/basicmachines-co/basic-memory)、[Obsidian 官方发布仓库](https://github.com/obsidianmd/obsidian-releases)由各自官方提供。Obsidian 客户端不是本仓库 MIT 许可覆盖的软件。
 
 直接 npm 依赖及其传递依赖分别适用自身许可；准确版本见 package-lock.json。示例人设、自我档案和测试数据用于演示，不包含原使用者的聊天、正式记忆或凭据。
