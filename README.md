@@ -15,6 +15,12 @@
 
 旧版的“Codex规划、DSH执行代码任务”另保留为[可选工程控制附录](docs/control.md)，两条记忆路线均不依赖它。仓库URL沿用历史名称 `codex-deepseek-starter`，以保留已有链接；名称不表示需要安装Codex。
 
+## 来源与致谢
+
+本方案基于 **[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)** 和 **[Basic Memory](https://github.com/basicmachines-co/basic-memory)**，MCP会话设置使用 **[u9521/dsh-session-settings](https://github.com/u9521/dsh-session-settings)**。可选工程控制使用 **[mochgolf/dsh-mcp-control](https://github.com/mochgolf/dsh-mcp-control)**，委派技能参考 **[LomoMao/delegate-to-deepseek-harness](https://github.com/LomoMao/delegate-to-deepseek-harness)**。感谢原作者与贡献者。
+
+本项目负责记忆桥、人设面板和整合接入；底层平台、记忆引擎及上述第三方组件各有来源。Basic Memory 0.24.1使用AGPL-3.0-or-later，不能用本仓库MIT覆盖；Obsidian遵循自己的条款。完整的**作者/维护方、用途、固定版本、改编关系及依赖许可**见[来源与许可清单](NOTICE.md)。
+
 ## 组成与职责
 
 | 组件 | 职责 | 哪条路线需要 |

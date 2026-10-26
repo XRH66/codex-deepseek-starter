@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-/** Derived from the local dsh-mcp-control CLI; see NOTICE.md. */
+/** Portable client for mochgolf/dsh-mcp-control, adapted from this project's local CLI.
+ * Upstream server attribution and the client distinction are documented in NOTICE.md. */
 import fs from 'node:fs';
 import os from 'node:os';
 import { pathToFileURL } from 'node:url';
