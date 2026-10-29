@@ -19,9 +19,10 @@
 | --- | --- | --- |
 | [dsh-basic-memory-bridge](https://github.com/XRH66/dsh-basic-memory-bridge) | 本项目维护的DSH插件：自动召回、轮后整理、纠正、补写、索引维护、遗忘强化及个人记录策略 | 调用官方Basic Memory MCP；底层存储、检索引擎属于Basic Memory；插件自身[MIT](https://github.com/XRH66/dsh-basic-memory-bridge/blob/main/LICENSE) |
 | [dsh-global-settings](https://github.com/XRH66/dsh-global-settings) | 本项目维护的全局人设、自我档案与记忆状态面板 | 使用DSH插件及Web接口；不是DSH官方功能；插件自身[MIT](https://github.com/XRH66/dsh-global-settings/blob/main/LICENSE) |
+| [dsh-pure-mode](https://github.com/XRH66/dsh-pure-mode) | 本项目维护的当前会话纯净模式插件，目标0.1.0 | 复用DSH原生作用域、工具限制和存储；许可以独立发布仓库 LICENSE 为准，不覆盖宿主许可 |
 | 本仓库配置生成、启动脚本、安装说明和共享记忆维护约定 | 将上述组件串成独立部署，并明确客户端如何共用记忆 | 不把第三方软件、模型、账户或个人数据作为本项目原创内容分发 |
 
-两个插件源码在各自仓库维护，主仓库按[记忆安装文档](docs/memory.md)中的完整提交号引用。本仓库自己的代码使用[MIT](LICENSE)，这不是对所有依赖的统一授权。
+三个插件源码在各自仓库维护，主仓库按[记忆安装文档](docs/memory.md)中的完整提交号引用。本仓库自己的代码使用[MIT](LICENSE)，这不是对所有依赖的统一授权。
 
 ## 可选工程控制的上游与改编
 
@@ -64,3 +65,17 @@
 支持MCP的第三方Agent是使用者自行选择的客户端，不属于本仓库组件。工程附录中的Codex示例来自[OpenAI Codex](https://developers.openai.com/codex/)，只说明连接方法；本方案不附带该产品或账户，也不代表获得官方背书。
 
 所有第三方项目名称及品牌归各自权利人。发布文章或介绍本项目时，应保留上述上游名称与链接，明确本项目贡献的是插件策略和集成工作，不将Basic Memory、DSH、会话设置、控制服务或参考技能描述为全部自研。
+
+## 0.3.0 配套发布
+
+本仓库0.3.0；配套记忆桥与全局设置0.2.0，纯净模式0.1.0。三个插件的完整固定提交见 [安装说明](docs/memory.md)，以上版本不改变第三方归属或许可。
+
+第三方 GenUI 与 billion-context 的可选改动、来源、适用版本及许可由 [可选组件说明](docs/optional-components.md) 单独列出，不作为本项目从零自研的功能。公开包不包含私人实验、记忆、迁移清单或运行备份。
+
+
+| 可选上游 | 维护方与适配版本 | 本包包含的改动与许可 |
+| --- | --- | --- |
+| [dsh-genui](https://github.com/lhuans/dsh-genui) | lhuans，0.3.1且精确文件指纹匹配 | 按需加载规范的新增模块与窄范围变换；[保留上游MIT](third-party/dsh-genui.LICENSE) |
+| [billion-context](https://github.com/ranxianglei/billion-context) | ranxianglei，0.1.208且精确文件指纹匹配 | 非终止空帧的窄范围流处理变换；[保留上游MIT](third-party/billion-context.LICENSE) |
+
+[补丁清单](third-party/patches/manifest.json)记录适配指纹，[应用工具](scripts/optional-patches.mjs)默认只读；显式应用需用户先停机及新私有备份，支持受指纹约束的恢复，绝不重启。这里只分发变换规则与新增模块，不捆绑上游整包，不宣称补丁已被上游合入。

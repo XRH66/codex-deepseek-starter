@@ -22,9 +22,11 @@ export function configure({ out, mode = 'memory', controlRoot, withMemory = fals
   let overlay = '# Generated paths are literal; no variable interpolation is required.\n';
   if (control) overlay += `- insert:\n    - id: starter-mcp-control\n      name: ${json(pathToFileURL(path.join(controlRoot, 'lib', 'index.js')).href)}\n      config:\n        tokenRef: DSH_MCP_CONTROL_TOKEN\n`;
   if (memory) overlay += `- id: basic-memory-bridge\n  config:\n    project: personal\n    vaultPath: ${json(vault)}\n- id: dsh-global-settings\n  config:\n    selfProfilePath: ${json(profile)}\n    memoryStatusDirectory: ${json(path.join(out, 'data', 'management', 'memory-status'))}\n`;
+  // The installed plugin owns per-session state; generation must not switch it on.
+  if (memory) overlay += '- id: dsh-pure-mode\n  config: {}\n';
   const files = {
     'dsh.patch.yml': overlay,
-    'paths.json': JSON.stringify({ mode, harnessHome: path.join(out, 'harness-home'), vault, management: path.join(out, 'data', 'management'), selfProfile: profile, persona: path.join(out, 'harness-home', 'persona.md') }, null, 2) + '\n',
+    'paths.json': JSON.stringify({ mode, requiredPlugins: memory ? ['dsh-session-settings', 'dsh-basic-memory-bridge', 'dsh-global-settings', 'dsh-pure-mode'] : [], harnessHome: path.join(out, 'harness-home'), vault, management: path.join(out, 'data', 'management'), selfProfile: profile, persona: path.join(out, 'harness-home', 'persona.md') }, null, 2) + '\n',
   };
   if (control) files['codex.mcp.toml'] = '[mcp_servers.dsh_harness]\nurl = "http://127.0.0.1:8931/mcp"\nbearer_token_env_var = "DSH_MCP_CONTROL_TOKEN"\n';
   if (memory) files['basic-memory.mcp.json'] = JSON.stringify({ mcpServers: { basic_memory: {
@@ -36,7 +38,7 @@ export function configure({ out, mode = 'memory', controlRoot, withMemory = fals
 }
 
 export function main(argv) {
-  if (argv.includes('--help')) { console.log('node scripts/configure.mjs --out <new-absolute-directory> [--mode memory|control]\nDefault: memory (DSH memory/persona only).\nControl: requires --control-root <built-checkout>; optionally add --with-memory.'); return; }
+  if (argv.includes('--help')) { console.log('node scripts/configure.mjs --out <new-absolute-directory> [--mode memory|control]\nDefault: memory (DSH memory/persona and per-session pure-mode plugin; does not enable a session switch).\nControl: requires --control-root <built-checkout>; optionally add --with-memory.'); return; }
   const options = {};
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--with-memory') options.withMemory = true;

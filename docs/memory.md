@@ -28,17 +28,26 @@ $env:DSH_HOME = $paths.harnessHome
 $env:DSH_AGENTS_HOME = $paths.harnessHome
 $env:DSH_MEMORY_VAULT = $paths.vault
 dsh plugin --profile web add github:u9521/dsh-session-settings#237537bb11663fd02bb14e5b415c92ff1a4320cd
-dsh plugin --profile web add github:XRH66/dsh-basic-memory-bridge#8a8f832a1038cbb4595331aaf08ecb8d4c2a4842
-dsh plugin --profile web add github:XRH66/dsh-global-settings#1fb0fcb5994b4dfb6937ea9a09ab226012bcae1b
+# 本次配套发布的完整提交，不自动跟随主分支。
+$bridgeCommit = '8180905355e5d59d81c3e867681cf68165509435' # 0.2.0
+$settingsCommit = 'f5778e8a7ddcf2be5ba83f895db587b384455a78' # 0.2.0
+$pureCommit = '014162d3137fcd35458340b09cdd89877baca490' # 0.1.0
+foreach ($commit in @($bridgeCommit, $settingsCommit, $pureCommit)) {
+    if ($commit -notmatch '^[0-9a-f]{40}$') { throw 'Release commit is not finalized; stop before installation.' }
+}
+dsh plugin --profile web add "github:XRH66/dsh-pure-mode#$pureCommit"
+dsh plugin --profile web add "github:XRH66/dsh-basic-memory-bridge#$bridgeCommit"
+dsh plugin --profile web add "github:XRH66/dsh-global-settings#$settingsCommit"
 ```
 
 | 插件 | 归属 | 用途 |
 | --- | --- | --- |
 | [dsh-session-settings](https://github.com/u9521/dsh-session-settings) | 第三方，MIT | MCP配置导入、探测及会话可见性控制 |
 | [dsh-basic-memory-bridge](https://github.com/XRH66/dsh-basic-memory-bridge) | 本方案自研，独立仓库 | 自动召回、整理、纠正、补写、索引、遗忘强化 |
+| [dsh-pure-mode](https://github.com/XRH66/dsh-pure-mode) | 本方案自研，独立仓库，0.1.0 | 当前会话纯净开关，保留原MCP设置 |
 | [dsh-global-settings](https://github.com/XRH66/dsh-global-settings) | 本方案自研，独立仓库 | 全局人设、自我档案及记忆状态面板 |
 
-固定提交用于复现首版，不自动追随主分支。源代码及独立测试在对应仓库，主方案不重复维护插件副本。
+配套版本为桥0.2.0、设置0.2.0、纯净插件0.1.0。上方固定提交用于复现发布组合，不自动追随主分支。源代码及独立测试在对应仓库，主方案不重复维护插件副本。
 
 ## 2. 登记独立Vault
 
@@ -88,8 +97,19 @@ Copy-Item (Join-Path $starter 'examples/self-profile.md') $paths.selfProfile
 
 ## 行为与限制
 
-事实、索引导航、个人记录分别召回。默认事实3条/1200字符、个人记录2条/1600字符、索引1页/600字符；受时间预算限制，允许空召回。
+事实、个人记录、索引导航与时间线仍使用原检索通道，随后与近期聊天统一装配、去重；默认记忆正文总预算2400字符，不是整个请求的token上限。近期片段最多先占正文预算60%，空缓存不占额度；受检索时间预算限制，允许空召回。
+
+近期缓存默认开启、估算容量16384 token，只存直接用户和最终助手文字，从新消息开始积累，不回填全历史；容量估计不是供应商账单。纯净模式不读写此缓存，普通会话按个人库共享。当前要求按同范围最新明确来源更新，旧版本独立保留历史。
 
 遗忘是检索权重随时间下降，默认30天半衰期，保留原文；新的用户交流有依据时小幅强化，自己读取、修订、整理不强化。想法和日记按条目计算，自我档案作为固定软上下文单独处理。模型仍可能漏记、误记或产生语义重复。
 
 全部启用会话共享一个个人库，尚无多人隐私隔离。个人笔记会通过上下文发送给当前配置的模型供应商；本地存储不等于推理离线。具体参数、删除工具限制和已知边界见各插件README。
+
+## 纯净模式与升级
+
+安装插件不等于开启开关。新空白会话第一条消息前点击“纯净模式”，默认关闭、按会话持久化；回合中切换从下一新回合生效。开启后关闭个人注入与 Basic Memory/个人记录/近期聊天工具，不改 AGENTS、模型、权限及原 MCP 勾选。旧聊天仍在，不能把切换当成历史抹除。旧普通记忆待办保留，升级时仍需显式隔离后台。
+
+已有部署请按 [升级指南](upgrade.md) 和 [旧库整理](memory-migration.md) 执行；需要重启时先记录影响与进度、暂停等待用户手动操作。GenUI / billion-context 见 [可选组件](optional-components.md)。
+
+
+后台捕获默认上限为 `captureTimeoutMs: 90000`、`captureMaxTokens: 8192`；完成即返回，不是每次固定时长或消耗。旧 profile 的显式20000/1024会继续覆盖源码默认；按 [升级指南](upgrade.md) 展示差异、保留有意自定义，仅在用户同意升级默认行为的范围内合并，并验证实际生效值。

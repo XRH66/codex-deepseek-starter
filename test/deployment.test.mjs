@@ -23,8 +23,10 @@ test('default CLI generates memory/persona without a control checkout or Codex c
     assert.equal(JSON.parse(run.stdout).mode,'memory');
     assert.deepEqual((await fs.readdir(out)).sort(),['basic-memory.mcp.json','dsh.patch.yml','paths.json']);
     const overlay=parseYaml(await fs.readFile(path.join(out,'dsh.patch.yml'),'utf8'));
-    assert.deepEqual(overlay.map(e=>e.id),['basic-memory-bridge','dsh-global-settings']);
+    assert.deepEqual(overlay.map(e=>e.id),['basic-memory-bridge','dsh-global-settings','dsh-pure-mode']);
     const paths=JSON.parse(await fs.readFile(path.join(out,'paths.json'),'utf8'));
+    assert.deepEqual(overlay[2],{id:'dsh-pure-mode',config:{}});
+    assert.deepEqual(paths.requiredPlugins,['dsh-session-settings','dsh-basic-memory-bridge','dsh-global-settings','dsh-pure-mode']);
     assert.equal(overlay[0].config.vaultPath,paths.vault);
     assert.equal(overlay[1].config.selfProfilePath,paths.selfProfile);
     assert.equal(JSON.parse(await fs.readFile(path.join(out,'basic-memory.mcp.json'),'utf8')).mcpServers.basic_memory.transport,'stdio');
@@ -44,6 +46,7 @@ test('Windows launcher keeps memory mode credential-free and reuses control cred
     for(const mode of ['memory','control']) {
       const out=path.join(base,mode);
       configure({out,mode,...(mode==='control'?{controlRoot}:{})});
+      if(mode==='control') assert.deepEqual(JSON.parse(await fs.readFile(path.join(out,'paths.json'),'utf8')).requiredPlugins,[]);
       if(mode==='control') assert.equal(await fs.stat(path.join(out,'basic-memory.mcp.json')).then(()=>true,()=>false),false);
       const script=path.join(base,mode+'.ps1');
       await fs.writeFile(script,`
@@ -78,6 +81,7 @@ test('configuration generation is outside the repo, coherent, secret-free and re
     const paths=JSON.parse(await fs.readFile(path.join(out,'paths.json'),'utf8'));
     const mcp=JSON.parse(await fs.readFile(path.join(out,'basic-memory.mcp.json'),'utf8'));
     const codex=parseToml(await fs.readFile(path.join(out,'codex.mcp.toml'),'utf8'));
+    assert.deepEqual(overlay[3],{id:'dsh-pure-mode',config:{}});
     assert.equal(overlay[1].config.vaultPath,paths.vault);
     assert.equal(overlay[2].config.selfProfilePath,paths.selfProfile);
     assert.equal(overlay[2].config.memoryStatusDirectory,path.join(paths.management,'memory-status'));

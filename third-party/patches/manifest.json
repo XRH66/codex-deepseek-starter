@@ -1,0 +1,100 @@
+{
+  "genui": {
+    "name": "dsh-genui",
+    "version": "0.3.1",
+    "upstream": "https://github.com/lhuans/dsh-genui",
+    "files": [
+      {
+        "path": "lib/index.js",
+        "before": "f0047df07e0c8af0b9f727c95584da533c59270c5ee284e600e203241ef5338f",
+        "after": "e2764a948a0e3149c7ed1aeb6f302650f660d9a408d3eeb168b3f3caf046bfa2",
+        "changes": [
+          {
+            "before": "import z from \"@deepseek-ai/schemastery\";",
+            "after": "import z from \"@deepseek-ai/schemastery\";\nimport { createGenuiOnDemand } from \"./prompt-on-demand.js\";"
+          },
+          {
+            "before": "function createGenuiPromptControl(section, systemPrompt) {",
+            "after": "function createGenuiPromptControl(section, systemPrompt, tools, demand) {"
+          },
+          {
+            "before": "\t\t\tif (enabled) disposer = systemPrompt.section(section);",
+            "after": "\t\t\tif (enabled) {\n\t\t\t\tconst removeTool = tools.register(demand.tool);\n\t\t\t\ttry {\n\t\t\t\t\tconst removeSection = systemPrompt.section(section);\n\t\t\t\t\tdemand.setEnabled(true);\n\t\t\t\t\tdisposer = () => {\n\t\t\t\t\t\tdemand.setEnabled(false);\n\t\t\t\t\t\tremoveSection();\n\t\t\t\t\t\tremoveTool();\n\t\t\t\t\t};\n\t\t\t\t} catch (error) {\n\t\t\t\t\tremoveTool();\n\t\t\t\t\tthrow error;\n\t\t\t\t}\n\t\t\t}"
+          },
+          {
+            "before": "const inject = [\"systemPrompt\", \"webServer\"];",
+            "after": "const inject = [\"systemPrompt\", \"webServer\", \"tools\"];"
+          },
+          {
+            "before": "\tconst systemPrompt = ctx.systemPrompt;\n\tconst promptControl",
+            "after": "\tconst systemPrompt = ctx.systemPrompt;\n\tconst configPromptEnabled = (typeof config.promptEnabled === \"boolean\" ? config.promptEnabled : config.promptEnabled.get()) !== false;\n\tconst demand = createGenuiOnDemand(config.sectionName, genuiPromptText);\n\tctx.on(\"system-prompt/assemble\", demand.assemble);\n\tctx.on(\"agent/pre-step\", demand.preStep);\n\tconst promptControl"
+          },
+          {
+            "before": "\t\ttext: genuiPromptText()\n\t}, systemPrompt);",
+            "after": "\t\tinterpolate: false,\n\t\ttext: demand.text\n\t}, systemPrompt, ctx.tools, demand);"
+          },
+          {
+            "before": "\t\tpromptControl.set(true);",
+            "after": "\t\tpromptControl.set(configPromptEnabled);"
+          },
+          {
+            "before": "configEnabled: config.promptEnabled !== false,",
+            "after": "configEnabled: configPromptEnabled,"
+          },
+          {
+            "before": "createPersistedPromptControl(promptControl, scope, true,",
+            "after": "createPersistedPromptControl(promptControl, scope, configPromptEnabled,"
+          }
+        ]
+      },
+      {
+        "path": "lib/client.js",
+        "before": "59e55dd73b64122533e927233cdd5764d3423a068aae57cb21f5302cb605bd99",
+        "after": "f1402a497de90ff36aba3e3a613b9e3dcfe89e3d5334552b37d92a4496bcdf4b",
+        "changes": [
+          {
+            "before": "const label = available ? enabled ? \"GenUI prompt on\" : \"GenUI prompt off\" : \"GenUI prompt unavailable\";",
+            "after": "const label = available ? enabled ? \"GenUI cards on (on-demand guidance)\" : \"GenUI cards off (rendering stays available)\" : \"GenUI cards unavailable\";"
+          },
+          {
+            "before": "\"aria-label\": \"GenUI prompt\"",
+            "after": "\"aria-label\": \"GenUI cards (on-demand guidance)\""
+          }
+        ]
+      },
+      {
+        "path": "lib/prompt-on-demand.js",
+        "before": null,
+        "after": "eefb95e240d376ee74a0aa482432e21f2aaa88eb68f68a951d36082bf30a38f5",
+        "asset": "genui-prompt-on-demand.js"
+      }
+    ]
+  },
+  "billion": {
+    "name": "billion-context",
+    "version": "0.1.208",
+    "upstream": "https://github.com/ranxianglei/billion-context",
+    "files": [
+      {
+        "path": "dist/index.js",
+        "before": "329f00ab2539cc65ae365ab9cd442a99f7a9032653bfcd463b7f3c7f1348ab9c",
+        "after": "2ea9e13574a7c89dcb18700ef9cfe62d035034949b624a10e27473862a8c1dac",
+        "changes": [
+          {
+            "before": "if(!Array.isArray(choices)){auditRawForward(rawEvent);return anyPending()?flushTails()+rawEvent+\"\\n\\n\":rawEvent+\"\\n\\n\"}",
+            "after": "if(!Array.isArray(choices)){auditRawForward(rawEvent);return rawEvent+\"\\n\\n\"}"
+          },
+          {
+            "before": "if(!hadText&&anyPending())return flushTails()+rawEvent+\"\\n\\n\";",
+            "after": ""
+          }
+        ],
+        "region": {
+          "outer": "async function pipePluginChatWithStrip(",
+          "start": "const processOpenai=(ev,rawEvent)=>{",
+          "end": "const processAnthropic="
+        }
+      }
+    ]
+  }
+}

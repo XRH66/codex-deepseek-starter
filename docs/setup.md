@@ -37,9 +37,9 @@ $paths = Get-Content (Join-Path $deploy 'paths.json') -Raw | ConvertFrom-Json
 
 默认模式为 `memory`，生成三个文件：
 
-- `dsh.patch.yml`：记忆桥、人设和状态目录配置。
+- `dsh.patch.yml`：记忆桥、人设、状态目录和纯净插件声明；不会开启会话纯净开关。
 - `basic-memory.mcp.json`：指向独立Basic Memory配置目录的stdio MCP连接。
-- `paths.json`：DSH home、Vault、人设、自我档案及管理目录的位置。
+- `paths.json`：DSH home、Vault、人设、自我档案及管理目录的位置，以及 requiredPlugins 安装清单。
 
 本路线不生成 `codex.mcp.toml`，不插入 `dsh-mcp-control`，不需要 `DSH_MCP_CONTROL_TOKEN`。不固定模型供应商。
 
@@ -47,7 +47,7 @@ $paths = Get-Content (Join-Path $deploy 'paths.json') -Raw | ConvertFrom-Json
 
 继续[记忆接入说明](memory.md)，按顺序完成：
 
-1. 安装官方Basic Memory、Obsidian，以及会话设置、记忆桥、人设三个插件。
+1. 安装官方Basic Memory、Obsidian，以及会话设置、记忆桥、全局设置、纯净模式四个插件。
 2. 登记同一个 `personal` 项目和Vault。
 3. 复制虚构起始人设、自我档案示例，或编写自己的内容。
 4. 启动独立DSH，配置自己可用的模型，在需要记忆的会话启用Basic Memory MCP并验证。
@@ -78,6 +78,6 @@ $deploy = Join-Path $env:LOCALAPPDATA 'dsh-memory-deployment'
 
 - 让其他Agent读取和整理同一套记忆：[第三方Agent协作维护](agents.md)。使用现有记忆配置，不需要创建工程控制部署。
 - 确实需要从Codex或其他MCP客户端给DSH派发代码任务：[可选工程控制附录](control.md)。该模式另用 `--mode control` 和控制插件，与共享记忆不是同一个功能。
-- 升级前确认版本、插件固定提交与数据路径，在会话和补写空闲时重载。`configure` 不用于覆盖升级现有部署；保留原有Vault、管理状态和配置，按实际变更更新。
+- 已有部署按 [升级指南](upgrade.md) 先发现与备份；`configure` 不用于覆盖升级。任何重启都先说明影响、写续接记录并暂停，由用户手动完成后再验收。
 
 当前证据与限制见[验证记录](validation.md)。
