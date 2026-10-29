@@ -2,7 +2,7 @@
 
 本项目是基于第三方软件搭建的记忆与Agent协作方案，不是从零实现的聊天平台或记忆引擎。感谢下列项目及贡献者。仓库拥有者、许可证中的版权主体和本项目维护者可能不同；原版权声明按上游原文保留。
 
-核对日期：2026-10-26。固定版本以安装文档、下表和 `package-lock.json` 为准；升级时同时更新对应来源与许可信息。
+原始许可核对日期：2026-10-26；配套发布状态复核：2026-10-29。固定版本以安装文档、下表和 `package-lock.json` 为准；升级时同时更新对应来源与许可信息。
 
 ## 默认记忆方案依赖谁
 
@@ -19,7 +19,7 @@
 | --- | --- | --- |
 | [dsh-basic-memory-bridge](https://github.com/XRH66/dsh-basic-memory-bridge) | 本项目维护的DSH插件：自动召回、轮后整理、纠正、补写、索引维护、遗忘强化及个人记录策略 | 调用官方Basic Memory MCP；底层存储、检索引擎属于Basic Memory；插件自身[MIT](https://github.com/XRH66/dsh-basic-memory-bridge/blob/main/LICENSE) |
 | [dsh-global-settings](https://github.com/XRH66/dsh-global-settings) | 本项目维护的全局人设、自我档案与记忆状态面板 | 使用DSH插件及Web接口；不是DSH官方功能；插件自身[MIT](https://github.com/XRH66/dsh-global-settings/blob/main/LICENSE) |
-| [dsh-pure-mode](https://github.com/XRH66/dsh-pure-mode) | 本项目维护的当前会话纯净模式插件，目标0.1.0 | 复用DSH原生作用域、工具限制和存储；许可以独立发布仓库 LICENSE 为准，不覆盖宿主许可 |
+| [dsh-pure-mode](https://github.com/XRH66/dsh-pure-mode) | 本项目维护的当前会话纯净模式插件，已发布0.1.0 | 复用DSH原生作用域、工具限制和存储；许可以独立发布仓库 LICENSE 为准，不覆盖宿主许可 |
 | 本仓库配置生成、启动脚本、安装说明和共享记忆维护约定 | 将上述组件串成独立部署，并明确客户端如何共用记忆 | 不把第三方软件、模型、账户或个人数据作为本项目原创内容分发 |
 
 三个插件源码在各自仓库维护，主仓库按[记忆安装文档](docs/memory.md)中的完整提交号引用。本仓库自己的代码使用[MIT](LICENSE)，这不是对所有依赖的统一授权。

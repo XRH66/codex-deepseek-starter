@@ -1,5 +1,7 @@
 # 默认安装：DSH 记忆与人设
 
+> **兼容范围（2026-10-29）**：本方案已验证 DSH **0.2.1-rc.2**。官方 **0.2.2-alpha.2** 涉及工具、提示词和会话接口调整，尚未完成兼容验证；不要将本次记忆插件更新视为宿主升级许可。先保留现用环境，在隔离部署验证新版。见[官方更新说明](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.2.2-alpha.2)。新版宿主要求 Node.js 24.9+；下文较低运行时要求只对应旧适配基线。
+
 返回 [README](../README.md)。本页面向Windows PowerShell，无需Codex、OpenAI账户、会话控制插件或工程派工技能。使用你能正常使用的DSH模型服务即可。
 
 ## 1. 准备工具和主仓库
