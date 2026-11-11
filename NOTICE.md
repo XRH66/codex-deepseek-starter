@@ -1,32 +1,29 @@
 # 来源、致谢与许可
 
-本项目是基于第三方软件搭建的记忆与Agent协作方案，不是从零实现的聊天平台或记忆引擎。感谢下列项目及贡献者。仓库拥有者、许可证中的版权主体和本项目维护者可能不同；原版权声明按上游原文保留。
+本项目是在 DeepSeek Harness 上搭建的长期记忆与人设方案，不是从零实现的聊天平台。感谢下列项目及贡献者。仓库拥有者、许可证中的版权主体和本项目维护者可能不同；原版权声明按上游原文保留。
 
-原始许可核对日期：2026-10-26；配套发布状态复核：2026-10-29。固定版本以安装文档、下表和 `package-lock.json` 为准；升级时同时更新对应来源与许可信息。
+原始许可核对日期：2026-10-26；0.4.0 配套组合复核：2026-11-11。固定版本以安装文档、下表和 `package-lock.json` 为准；升级时同时更新对应来源与许可信息。
 
 ## 默认记忆方案依赖谁
 
 | 项目及来源 | 上游维护方 | 本方案如何使用 | 版本与许可依据 |
 | --- | --- | --- | --- |
-| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | deepseek-ai / DeepSeek | 提供聊天、模型调用、工具、插件和会话运行环境；不由本项目开发 | 适配0.2.1-rc.2；[上游MIT许可](https://github.com/deepseek-ai/deepseek-harness/blob/master/LICENSE) |
-| [Basic Memory](https://github.com/basicmachines-co/basic-memory) | basicmachines-co及贡献者 | 提供Markdown记忆存储、检索、索引和MCP；通过独立本地进程接入，不复制或重新分发引擎源码 | 固定0.24.1；安装包元数据标记 **AGPL-3.0-or-later**，见[对应版本许可](https://github.com/basicmachines-co/basic-memory/blob/v0.24.1/LICENSE) |
-| [dsh-session-settings](https://github.com/u9521/dsh-session-settings) | **u9521**及贡献者 | 提供MCP管理、工具探测及会话启用开关；直接安装第三方插件，未把它改称自研 | 固定提交[`237537b`](https://github.com/u9521/dsh-session-settings/tree/237537bb11663fd02bb14e5b415c92ff1a4320cd)；[MIT，版权原文为2025 u9521](https://github.com/u9521/dsh-session-settings/blob/237537bb11663fd02bb14e5b415c92ff1a4320cd/LICENSE) |
-| [Obsidian](https://github.com/obsidianmd/obsidian-releases) | Obsidian | 直接查看和编辑同一Vault；仅提供官方下载及安装入口，不随本仓库打包 | 客户端遵循[Obsidian自己的许可与条款](https://obsidian.md/license)；发布仓库不等于客户端开源源码，也不适用本仓库MIT |
+| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | deepseek-ai / DeepSeek | 提供聊天、模型调用、工具、插件和会话运行环境；不由本项目开发 | 适配0.2.1-rc.5；[上游MIT许可](https://github.com/deepseek-ai/deepseek-harness/blob/master/LICENSE) |
+| [Obsidian](https://github.com/obsidianmd/obsidian-releases) | Obsidian | 可选，直接查看和编辑记忆 Vault；不随本仓库打包 | 客户端遵循[Obsidian自己的许可与条款](https://obsidian.md/license)；发布仓库不等于客户端开源源码，也不适用本仓库MIT |
 
 ## 本项目做了哪些部分
 
 | 内容 | 本项目负责的范围 | 与第三方的边界 |
 | --- | --- | --- |
-| [dsh-basic-memory-bridge](https://github.com/XRH66/dsh-basic-memory-bridge) | 本项目维护的DSH插件：自动召回、轮后整理、纠正、补写、索引维护、遗忘强化及个人记录策略 | 调用官方Basic Memory MCP；底层存储、检索引擎属于Basic Memory；插件自身[MIT](https://github.com/XRH66/dsh-basic-memory-bridge/blob/main/LICENSE) |
+| [dsh-memory-starter](https://github.com/XRH66/dsh-memory-starter)（原名 dsh-basic-memory-bridge） | 本项目维护的 DSH 记忆插件：按对话开启、原话库、按需检索、后台整理、遗忘曲线、短期接续和可选向量检索 | 记忆正文由插件直接读写 Markdown，不依赖 Basic Memory；向量模型、Python 依赖和 llama.cpp 由使用者按需下载，各自许可见该仓库的 THIRD-PARTY-NOTICES；插件自身[MIT](https://github.com/XRH66/dsh-memory-starter/blob/main/LICENSE) |
 | [dsh-global-settings](https://github.com/XRH66/dsh-global-settings) | 本项目维护的全局人设、自我档案与记忆状态面板 | 使用DSH插件及Web接口；不是DSH官方功能；插件自身[MIT](https://github.com/XRH66/dsh-global-settings/blob/main/LICENSE) |
-| [dsh-pure-mode](https://github.com/XRH66/dsh-pure-mode) | 本项目维护的当前会话纯净模式插件，已发布0.1.0 | 复用DSH原生作用域、工具限制和存储；许可以独立发布仓库 LICENSE 为准，不覆盖宿主许可 |
 | 本仓库配置生成、启动脚本、安装说明和共享记忆维护约定 | 将上述组件串成独立部署，并明确客户端如何共用记忆 | 不把第三方软件、模型、账户或个人数据作为本项目原创内容分发 |
 
-三个插件源码在各自仓库维护，主仓库按[记忆安装文档](docs/memory.md)中的完整提交号引用。本仓库自己的代码使用[MIT](LICENSE)，这不是对所有依赖的统一授权。
+两个插件源码在各自仓库维护，主仓库按[安装说明](docs/setup.md)中的完整提交号引用。本仓库自己的代码使用[MIT](LICENSE)，这不是对所有依赖的统一授权。
 
 ## 可选工程控制的上游与改编
 
-这些内容仅用于[工程控制附录](docs/control.md)，不是两条记忆路线的前置条件。
+这些内容仅用于[工程控制附录](docs/control.md)，不是记忆功能的前置条件。
 
 | 本仓库中的内容 | 原项目 / 维护方 | 引用、改编或调用关系 |
 | --- | --- | --- |
@@ -60,15 +57,15 @@
 
 ## 安装工具与可选客户端
 
-安装过程使用[Node.js](https://github.com/nodejs/node)、[npm](https://github.com/npm/cli)、[Git](https://git-scm.com/)、[uv](https://github.com/astral-sh/uv)及[Python](https://www.python.org/)；可选工程控制构建使用[pnpm](https://github.com/pnpm/pnpm)。这些工具由各自项目提供，本仓库只给出调用和安装步骤，不重新分发其运行时。
+安装过程使用[Node.js](https://github.com/nodejs/node)、[npm](https://github.com/npm/cli)、[Git](https://git-scm.com/)、以及本地向量模型需要的[Python](https://www.python.org/)；可选工程控制构建使用[pnpm](https://github.com/pnpm/pnpm)。这些工具由各自项目提供，本仓库只给出调用和安装步骤，不重新分发其运行时。
 
 支持MCP的第三方Agent是使用者自行选择的客户端，不属于本仓库组件。工程附录中的Codex示例来自[OpenAI Codex](https://developers.openai.com/codex/)，只说明连接方法；本方案不附带该产品或账户，也不代表获得官方背书。
 
-所有第三方项目名称及品牌归各自权利人。发布文章或介绍本项目时，应保留上述上游名称与链接，明确本项目贡献的是插件策略和集成工作，不将Basic Memory、DSH、会话设置、控制服务或参考技能描述为全部自研。
+所有第三方项目名称及品牌归各自权利人。发布文章或介绍本项目时，应保留上述上游名称与链接，明确本项目贡献的是记忆插件、人设插件和集成工作，不将 DSH、向量模型、控制服务或参考技能描述为自研。
 
-## 0.3.0 配套发布
+## 0.4.0 配套组合
 
-本仓库0.3.0；配套记忆桥与全局设置0.2.0，纯净模式0.1.0。三个插件的完整固定提交见 [安装说明](docs/memory.md)，以上版本不改变第三方归属或许可。
+本仓库0.4.0；配套记忆插件 dsh-memory-starter 0.4.0、人设插件 dsh-global-settings 0.2.0。完整固定提交见[安装说明](docs/setup.md)，以上版本不改变第三方归属或许可。0.3.0 及更早组合使用的 Basic Memory（AGPL-3.0-or-later）、dsh-session-settings 和纯净模式插件已不在本组合中。
 
 第三方 GenUI 与 billion-context 的可选改动、来源、适用版本及许可由 [可选组件说明](docs/optional-components.md) 单独列出，不作为本项目从零自研的功能。公开包不包含私人实验、记忆、迁移清单或运行备份。
 
@@ -76,6 +73,6 @@
 | 可选上游 | 维护方与适配版本 | 本包包含的改动与许可 |
 | --- | --- | --- |
 | [dsh-genui](https://github.com/lhuans/dsh-genui) | lhuans，0.3.1且精确文件指纹匹配 | 按需加载规范的新增模块与窄范围变换；[保留上游MIT](third-party/dsh-genui.LICENSE) |
-| [billion-context](https://github.com/ranxianglei/billion-context) | ranxianglei，0.1.208且精确文件指纹匹配 | 非终止空帧的窄范围流处理变换；[保留上游MIT](third-party/billion-context.LICENSE) |
+| [billion-context](https://github.com/ranxianglei/billion-context) | ranxianglei，0.1.208且精确文件指纹匹配 | 非终止空帧的窄范围流处理变换；[保留上游完整许可证](third-party/billion-context.LICENSE)，含 MIT 正文及「Additional Term — Attribution on Product Surfaces」（产品出处标注）；适用条件与要求以完整原文为准 |
 
 [补丁清单](third-party/patches/manifest.json)记录适配指纹，[应用工具](scripts/optional-patches.mjs)默认只读；显式应用需用户先停机及新私有备份，支持受指纹约束的恢复，绝不重启。这里只分发变换规则与新增模块，不捆绑上游整包，不宣称补丁已被上游合入。

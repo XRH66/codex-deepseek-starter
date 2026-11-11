@@ -21,15 +21,15 @@ test('default CLI generates memory/persona without a control checkout or Codex c
     const out=path.join(base,'memory deployment');
     const run=await exec(process.execPath,[path.join(repoRoot,'scripts','configure.mjs'),'--out',out]);
     assert.equal(JSON.parse(run.stdout).mode,'memory');
-    assert.deepEqual((await fs.readdir(out)).sort(),['basic-memory.mcp.json','dsh.patch.yml','paths.json']);
+    assert.deepEqual((await fs.readdir(out)).sort(),['dsh.patch.yml','paths.json']);
     const overlay=parseYaml(await fs.readFile(path.join(out,'dsh.patch.yml'),'utf8'));
-    assert.deepEqual(overlay.map(e=>e.id),['basic-memory-bridge','dsh-global-settings','dsh-pure-mode']);
+    assert.deepEqual(overlay.map(e=>e.id),['dsh-global-settings']);
     const paths=JSON.parse(await fs.readFile(path.join(out,'paths.json'),'utf8'));
-    assert.deepEqual(overlay[2],{id:'dsh-pure-mode',config:{}});
-    assert.deepEqual(paths.requiredPlugins,['dsh-session-settings','dsh-basic-memory-bridge','dsh-global-settings','dsh-pure-mode']);
-    assert.equal(overlay[0].config.vaultPath,paths.vault);
-    assert.equal(overlay[1].config.selfProfilePath,paths.selfProfile);
-    assert.equal(JSON.parse(await fs.readFile(path.join(out,'basic-memory.mcp.json'),'utf8')).mcpServers.basic_memory.transport,'stdio');
+    assert.deepEqual(paths.requiredPlugins,['dsh-memory-starter','dsh-global-settings']);
+    assert.equal(overlay[0].config.selfProfilePath,paths.selfProfile);
+    assert.equal(overlay[0].config.memoryStatusDirectory,path.join(paths.management,'memory-status'));
+    assert.equal(paths.vault,path.join(paths.memoryDirectory,'vault'));
+    assert.equal(path.relative(paths.memoryDirectory,paths.selfProfile).startsWith('..'),true,'self profile stays outside the memory directory the setup page initializes');
     assert.throws(()=>configure({out:path.join(base,'invalid'),mode:'other'}),/mode/);
     assert.throws(()=>configure({out:path.join(base,'unexpected'),controlRoot:base}),/only used/);
     assert.throws(()=>configure({out:path.join(base,'missing-control'),mode:'control'}),/control-root/);
@@ -47,18 +47,18 @@ test('Windows launcher keeps memory mode credential-free and reuses control cred
       const out=path.join(base,mode);
       configure({out,mode,...(mode==='control'?{controlRoot}:{})});
       if(mode==='control') assert.deepEqual(JSON.parse(await fs.readFile(path.join(out,'paths.json'),'utf8')).requiredPlugins,[]);
-      if(mode==='control') assert.equal(await fs.stat(path.join(out,'basic-memory.mcp.json')).then(()=>true,()=>false),false);
       const script=path.join(base,mode+'.ps1');
       await fs.writeFile(script,`
 function dsh { $global:starterObservedArgs = @($args | ForEach-Object { [string]$_ }); $global:LASTEXITCODE = 0 }
 . ${quote(path.join(repoRoot,'scripts','use-deployment.ps1'))} -Deployment ${quote(out)} -Start
 $firstToken = $env:DSH_MCP_CONTROL_TOKEN
 . ${quote(path.join(repoRoot,'scripts','use-deployment.ps1'))} -Deployment ${quote(out)}
-@{ home=$env:DSH_HOME; tokenLength=([string]$env:DSH_MCP_CONTROL_TOKEN).Length; sameToken=($firstToken -eq $env:DSH_MCP_CONTROL_TOKEN); url=$env:DSH_MCP_URL; args=$global:starterObservedArgs } | ConvertTo-Json -Compress
+@{ vault=$env:DSH_MEMORY_VAULT; home=$env:DSH_HOME; tokenLength=([string]$env:DSH_MCP_CONTROL_TOKEN).Length; sameToken=($firstToken -eq $env:DSH_MCP_CONTROL_TOKEN); url=$env:DSH_MCP_URL; args=$global:starterObservedArgs } | ConvertTo-Json -Compress
 `);
-      const result=await exec('powershell.exe',['-NoProfile','-File',script],{env:{...process.env,DSH_MCP_CONTROL_TOKEN:'stale',DSH_MCP_URL:'http://127.0.0.1:3080/mcp',DSH_CODEX_CONFIG:'stale'}});
+      const result=await exec('powershell.exe',['-NoProfile','-File',script],{env:{...process.env,DSH_MCP_CONTROL_TOKEN:'stale',DSH_MCP_URL:'http://127.0.0.1:3080/mcp',DSH_CODEX_CONFIG:'stale',DSH_MEMORY_VAULT:'stale'}});
       const state=JSON.parse(result.stdout.trim().split(/\r?\n/).at(-1));
       assert.equal(state.home,path.join(out,'harness-home'));
+      assert.equal(state.vault,null,'a stale vault variable would make the memory setup page refuse the new directory');
       assert.deepEqual(state.args,['--profile','web','--patch',path.join(out,'dsh.patch.yml'),'--host','127.0.0.1','--port','8931','--no-open']);
       assert.equal(state.tokenLength,mode==='memory'?0:64);
       assert.equal(state.sameToken,true);
@@ -79,21 +79,16 @@ test('configuration generation is outside the repo, coherent, secret-free and re
     assert.equal(result.deployed,false);
     const overlay=parseYaml(await fs.readFile(path.join(out,'dsh.patch.yml'),'utf8'));
     const paths=JSON.parse(await fs.readFile(path.join(out,'paths.json'),'utf8'));
-    const mcp=JSON.parse(await fs.readFile(path.join(out,'basic-memory.mcp.json'),'utf8'));
     const codex=parseToml(await fs.readFile(path.join(out,'codex.mcp.toml'),'utf8'));
-    assert.deepEqual(overlay[3],{id:'dsh-pure-mode',config:{}});
-    assert.equal(overlay[1].config.vaultPath,paths.vault);
-    assert.equal(overlay[2].config.selfProfilePath,paths.selfProfile);
-    assert.equal(overlay[2].config.memoryStatusDirectory,path.join(paths.management,'memory-status'));
-    assert.equal(mcp.mcpServers.basic_memory.command,'basic-memory');
-    assert.equal(mcp.mcpServers.basic_memory.transport,'stdio','pinned session-settings skips entries without an explicit stdio transport');
-    assert.equal(mcp.mcpServers.basic_memory.env.BASIC_MEMORY_CONFIG_DIR,path.join(out,'basic-memory-state'));
+    assert.deepEqual(overlay.map(e=>e.id ?? 'insert'),['insert','dsh-global-settings']);
+    assert.equal(overlay[1].config.selfProfilePath,paths.selfProfile);
+    assert.equal(overlay[1].config.memoryStatusDirectory,path.join(paths.management,'memory-status'));
     assert.equal(codex.mcp_servers.dsh_harness.bearer_token_env_var,'DSH_MCP_CONTROL_TOKEN');
     assert.match(overlay[0].insert[0].name,/^file:/);
     assert.throws(()=>configure({out,controlRoot}),/already exists/);
     assert.throws(()=>configure({out:path.join(repoRoot,'generated'),controlRoot}),/outside/);
     assert.throws(()=>configure({out:'relative',controlRoot}),/absolute/);
-    assert.equal(await fs.stat(paths.vault).then(()=>true,()=>false),false,'generation must not create a live vault');
+    assert.equal(await fs.stat(paths.memoryDirectory).then(()=>true,()=>false),false,'generation must not create the memory directory');
   } finally { await fs.rm(base,{recursive:true,force:true}); }
 });
 

@@ -7,7 +7,7 @@
 | [lhuans/dsh-genui](https://github.com/lhuans/dsh-genui) | 0.3.1，且文件指纹一致 | 完整卡片规范按需加载，下一轮恢复短说明；卡片渲染与按钮接续保留 |
 | [ranxianglei/billion-context](https://github.com/ranxianglei/billion-context) | 0.1.208，且文件指纹一致 | 修复 OpenAI 流的非终止空帧过早输出半截标签；保留真正结束时输出和工具调用 |
 
-两个上游均为 MIT，各自版权保留于 third-party 的许可证文件。这里只分发小范围变换规则及新增按需加载模块，不捆绑上游完整安装包。补丁不是上游已发布修复的声明；同版本也可能有不同构建，文件不匹配即停止，不强行覆盖。新版本应先核对上游是否已经修复。
+GenUI 的[上游 MIT 许可证](../third-party/dsh-genui.LICENSE)与 billion-context 的[上游完整许可证](../third-party/billion-context.LICENSE)均保留原版权声明。后者包含 MIT 正文及「Additional Term — Attribution on Product Surfaces」（产品出处标注）；适用条件与要求以完整原文为准。这里只分发小范围变换规则及新增按需加载模块，不捆绑上游完整安装包。补丁不是上游已发布修复的声明；同版本也可能有不同构建，文件不匹配即停止，不强行覆盖。新版本应先核对上游是否已经修复。
 
 ## 1. 只读检查
 

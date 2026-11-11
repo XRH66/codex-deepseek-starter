@@ -17,8 +17,8 @@ if ($hasControl -and -not (Test-Path -LiteralPath $tokenPath)) {
 }
 $env:DSH_HOME = $paths.harnessHome
 $env:DSH_AGENTS_HOME = $paths.harnessHome
-$env:DSH_MEMORY_VAULT = $paths.vault
-$env:BASIC_MEMORY_CONFIG_DIR = Join-Path $deploymentPath 'basic-memory-state'
+# The memory plugin treats DSH_MEMORY_VAULT as an existing library and would refuse to set up inside it.
+Remove-Item Env:DSH_MEMORY_VAULT, Env:BASIC_MEMORY_CONFIG_DIR -ErrorAction SilentlyContinue
 if ($hasControl) {
     $env:DSH_MCP_CONTROL_TOKEN = (Get-Content -LiteralPath $tokenPath -Raw).Trim()
     if ($env:DSH_MCP_CONTROL_TOKEN -notmatch '^[a-f0-9]{64}$') { throw 'Invalid deployment token file; do not overwrite an existing credential.' }

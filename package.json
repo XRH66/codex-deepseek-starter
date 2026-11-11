@@ -1,8 +1,8 @@
 {
   "name": "codex-deepseek-starter",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
-  "description": "DSH memory and persona with optional shared-memory maintenance by third-party MCP agents.",
+  "description": "DSH long-term memory and persona: install guide, deployment generator and fixed plugin versions for dsh-memory-starter and dsh-global-settings.",
   "license": "MIT",
   "type": "module",
   "engines": {

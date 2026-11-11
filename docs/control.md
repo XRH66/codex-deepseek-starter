@@ -2,7 +2,7 @@
 
 > **兼容范围（2026-10-29）**：本方案已验证 DSH **0.2.1-rc.2**。官方 **0.2.2-alpha.2** 涉及工具、提示词和会话接口调整，尚未完成兼容验证；不要将本次记忆插件更新视为宿主升级许可。先保留现用环境，在隔离部署验证新版。见[官方更新说明](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.2.2-alpha.2)。新版宿主要求 Node.js 24.9+；下文较低运行时要求只对应旧适配基线。
 
-返回 [README](../README.md)。本页是额外的工程派工功能，以Codex为示例；日常DSH记忆和第三方Agent共享记忆均不需要本页。共享记忆请读[第三方Agent协作维护](agents.md)。下面使用Windows PowerShell，其他系统尚未验证。
+返回 [README](../README.md)。本页是额外的工程派工功能，以Codex为示例；日常 DSH 记忆不需要本页。下面使用Windows PowerShell，其他系统尚未验证。
 
 ## 1. 准备工具和本仓库
 
@@ -54,7 +54,7 @@ Pop-Location
 
 ## 3. 生成独立部署配置
 
-`$deploy` 必须是仓库外尚不存在的新目录；下面仅生成配置，不启动服务，不修改已有 Harness/Codex 设置。预先加入 `--with-memory` 会同时生成记忆配置，记忆插件启用步骤仍需按[记忆文档](memory.md)完成。
+`$deploy` 必须是仓库外尚不存在的新目录；下面仅生成配置，不启动服务，不修改已有 Harness/Codex 设置。预先加入 `--with-memory` 会同时生成记忆配置，记忆插件的安装和首次配置仍按[安装说明](setup.md)第 3–5 步完成。
 
 ```powershell
 Set-Location $starter
@@ -66,7 +66,7 @@ $env:DSH_AGENTS_HOME = $paths.harnessHome
 $env:DSH_MCP_URL = 'http://127.0.0.1:8931/mcp'
 ```
 
-本页默认只生成控制配置，不启用个人记忆。确需同时部署记忆时，在生成命令中添加 `--with-memory`，并完成[记忆文档第1–3步](memory.md)后再启动。不能在同一输出目录再次生成。审查 `dsh.patch.yml`；其中路径是实际字面值，不依赖 YAML 自动展开变量。`DSH_HOME` 和 `DSH_AGENTS_HOME` 均指向独立目录，避免接触已有用户主目录部署。
+本页默认只生成控制配置，不启用个人记忆。确需同时部署记忆时，在生成命令中添加 `--with-memory`，并完成[安装说明](setup.md)第 3–4 步后再启动。不能在同一输出目录再次生成。审查 `dsh.patch.yml`；其中路径是实际字面值，不依赖 YAML 自动展开变量。`DSH_HOME` 和 `DSH_AGENTS_HOME` 均指向独立目录，避免接触已有用户主目录部署。
 
 ## 4. 凭据、模型与启动
 
@@ -106,6 +106,8 @@ Codex进程也需继承相同token环境变量。可以从已设置环境变量�
 
 本仓库CLI本身可以直接用 `DSH_MCP_URL` 和 `DSH_MCP_CONTROL_TOKEN`，无需修改Codex配置；也支持 `DSH_CODEX_CONFIG` 指向配置文件，否则从 `CODEX_HOME/config.toml` 或用户主目录 `.codex/config.toml` 读取。优先环境token，其次配置引用的token环境变量，再其次兼容原有内联Authorization。不要在公共文件写真实凭据。
 
+CLI 会先读取并解析上述 TOML 文件，再使用环境变量中的连接参数。已存在的配置文件必须可读且 TOML 语法有效；即使 URL 与 token 环境变量齐全，也不会跳过解析错误。配置文件不存在时，只有设置了 `DSH_MCP_CONTROL_TOKEN` 才允许继续。遇到 `config` 错误时，先检查实际选中的配置路径、文件可读性与 TOML 语法。
+
 技能按[官方技能说明](https://learn.chatgpt.com/docs/build-skills)复制到实际工程的 `.agents/skills/` 下。在仓库根目录、使用一个新的演示工程：
 
 ```powershell
@@ -119,7 +121,7 @@ $env:DSH_STARTER_ROOT = $starter
 
 ## 6. 实际派工、续接与验收
 
-先确认工程工作区没有启用个人 `basic_memory` MCP；开启它会让轮后整理保存工程简报。若此前全局启用了记忆，在工程工作区显式关闭后再派工。在继承了同一token的调用终端执行：
+先确认工程会话没有开启对话记忆（记忆默认关闭，按对话开启）；开启会让后台整理保存工程简报。在继承了同一token的调用终端执行：
 
 ```powershell
 $receipt = node (Join-Path $starter 'scripts/dsh-cli.mjs') start --cwd $work --task-file (Join-Path $starter 'examples/task.md') --permission danger-full-access | ConvertFrom-Json
