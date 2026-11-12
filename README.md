@@ -9,7 +9,7 @@
 | 组件 | 作用 | 是否必装 |
 | --- | --- | --- |
 | [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | 聊天、模型调用和插件运行环境 | 必装 |
-| [dsh-memory-starter](https://github.com/XRH66/dsh-memory-starter) 0.4.0 | 记忆插件：按对话开启、原话库、按需检索、后台整理、遗忘曲线、短期接续、可选向量检索 | 必装 |
+| [dsh-memory-starter](https://github.com/XRH66/dsh-memory-starter) 0.5.0 | 记忆插件：按对话开启、原话库、按需检索、后台整理、遗忘曲线、短期接续、可选向量检索、旧记忆迁移 | 必装 |
 | [dsh-global-settings](https://github.com/XRH66/dsh-global-settings) 0.2.0 | 全局人设、自我档案、当前对话的记忆状态显示 | 推荐 |
 | [Obsidian](https://obsidian.md/) | 查看、编辑记忆 Vault | 可选 |
 
@@ -26,7 +26,7 @@ npm ci
 npm run check
 ```
 
-然后按 [安装说明](docs/setup.md) 走：生成一份独立部署 → 装两个插件 → 启动 DSH → 在「记忆框架」页面完成首次配置。已经在用旧版（0.3.0，Basic Memory 组合）的，看 [升级说明](docs/upgrade.md)。
+然后按 [安装说明](docs/setup.md) 走：生成一份独立部署 → 装两个插件 → 启动 DSH → 在「记忆框架」页面完成首次配置。已经在用旧版（0.4.0，或 0.3.0 的 Basic Memory 组合）的，看 [升级说明](docs/upgrade.md)。
 
 ## 隐私
 
@@ -39,4 +39,4 @@ npm run check
 - 第三方组件的可选补丁（GenUI、billion-context）：[可选组件](docs/optional-components.md)
 - 从 Codex 等 MCP 客户端给 DSH 派发代码任务：[工程控制附录](docs/control.md)，与记忆无关，按需使用。
 
-MIT。当前版本 0.4.0，适配 DSH 0.2.1-rc.5。
+MIT。当前版本 0.5.0，适配 DSH 0.2.1-rc.5。

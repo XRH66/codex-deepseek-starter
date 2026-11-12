@@ -48,7 +48,7 @@ $paths = Get-Content (Join-Path $deploy 'paths.json') -Raw | ConvertFrom-Json
 再安装固定版本的两个插件：
 
 ```powershell
-$memoryCommit = '986656e23606abcf63ed16087d442b53658dd052'   # dsh-memory-starter 0.4.0
+$memoryCommit = 'fe12796708da39d737bdd8d475cd16cb17b54fe0'   # dsh-memory-starter 0.5.0
 $settingsCommit = 'f5778e8a7ddcf2be5ba83f895db587b384455a78' # dsh-global-settings 0.2.0
 dsh plugin --profile web add "github:XRH66/dsh-memory-starter#$memoryCommit"
 dsh plugin --profile web add "github:XRH66/dsh-global-settings#$settingsCommit"
