@@ -6,18 +6,13 @@ https://github.com/XRH66/dsh-memory-starter
 
 新仓库现在是整套 DSH 记忆与人设方案的唯一维护入口。后续安装、升级、示例和问题修复都以新仓库为准。
 
-## 当前安装
+## 新仓库入口
+
+安装、升级和已有用户迁移都从新仓库继续：
 
 - [新仓库首页](https://github.com/XRH66/dsh-memory-starter)
 - [安装说明](https://github.com/XRH66/dsh-memory-starter/blob/main/docs/install/setup.md)
 - [升级说明](https://github.com/XRH66/dsh-memory-starter/blob/main/docs/install/upgrade.md)
-
-## 已安装用户怎么迁移
-
-- **需要换的是更新来源：** 旧仓库不再发布新版本。以后安装、升级和获取示例都改用 `dsh-memory-starter`，当前版本从 `v0.6.0` 开始。
-- **不需要搬的是数据：** 已经安装好的 DSH 配置和记忆库仍放在原位置，不需要复制、重建或迁库。
-- 不要为了更换仓库地址删除或覆盖现有记忆目录。
-- 记忆插件包名、接口路径和已有笔记来源字段保持兼容，因此升级程序后不需要转换数据格式。
 
 ## 旧版本文档索引
 
